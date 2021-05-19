@@ -32,7 +32,7 @@ const recursive = {
 };
 ReactDOM.render(
   // here is directly passing ref to factory object which produces react element template  
-  <App data={recursive} />,
+  <App data={recursive} nodesKey={"nodes"}/>,
   document.getElementById('root')
 );
 
