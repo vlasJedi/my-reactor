@@ -2,19 +2,14 @@
 function Tree({dataModel, onNodeClick}) {
     const px = 'px';
     const styles = {
-        paddingLeft: (20 * dataModel.lvl).toString() + px
+        paddingLeft: (10 * dataModel.lvl).toString() + px
     };
-    if (!dataModel.nodes) {
-        return dataModel.visible && (
-            <div style={styles} onClick={() => onNodeClick(dataModel)}>
-                <span>{dataModel.key}</span>
-            </div>);
-    }
     return dataModel.visible && (
-        <div style={styles} onClick={() => onNodeClick(dataModel)}>
+        <div style={styles} onClick={(e) => onNodeClick(dataModel, e)}>
+            <input type="checkbox" />
             <span>{dataModel.key}</span>
-            {dataModel.nodes.map((node) => {
-                return (<Tree dataModel={node} onNodeClick={onNodeClick}/>);
+            {dataModel.nodes && dataModel.nodes.map((node) => {
+                return (<Tree key={node.key} dataModel={node} onNodeClick={onNodeClick}/>);
             })}
         </div>);
 }
