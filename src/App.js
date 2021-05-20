@@ -2,7 +2,6 @@ import './App.css';
 import { useState } from "react";
 import Tree from 'Tree/Tree';
 
-// Looks like the React.createElement()
 function App({data, nodesKey}) {
   // initial data to build viewmodel
   let dataModel = data;
@@ -22,9 +21,10 @@ function App({data, nodesKey}) {
   function buildViewModel(data, lvl, nodesKey) {
     /** TODO need to create internal func for recursion to hide internal parameter */
     if (!data) return;
+    /** TODO need to bind to external key which provides value to display instead of hardcode */
     const dataModel = Object.assign({ visible: lvl === 0, lvl: lvl, key: data.key, nodes: data[nodesKey]}, data);
     if (!dataModel.nodes) return dataModel;
-    dataModel.nodes = dataModel[nodesKey].map((node) => buildViewModel(node, lvl + 1, nodesKey));
+    dataModel.nodes = dataModel.nodes.map((node) => buildViewModel(node, lvl + 1, nodesKey));
     return dataModel;
   }
 
