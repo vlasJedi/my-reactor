@@ -9,22 +9,23 @@ function App({data, nodesKey}) {
   let updateDataModel = null;
   [dataModel, updateDataModel] = useState(buildViewModel(dataModel, 0, nodesKey));
   // render tree by recursion
-  return (<Tree dataModel={dataModel} onNodeClick={onNodeClick} />);
+  return (<Tree dataModel={dataModel} onNodeClick={onNodeClick} onNodeCheckBoxClick={onNodeCheckBoxClick}/>);
 
   /**
    * Creates view model via tree structure by nodes
    * @param {Object} data - initial data, will be not modified 
    * @param {Number} lvl - set to 0, internal 
    * @param {String} nodesKey - key name to process children nodes 
+   * @param {Object|undefined} parent - ref to parent node, maybe need replace with calculated path in tree 
    * @returns {Object}
    */
-  function buildViewModel(data, lvl, nodesKey) {
+  function buildViewModel(data, lvl, nodesKey, parent) {
     /** TODO need to create internal func for recursion to hide internal parameter */
     if (!data) return;
     /** TODO need to bind to external key which provides value to display instead of hardcode */
-    const dataModel = Object.assign({ visible: lvl === 0, lvl: lvl, key: data.key, nodes: data[nodesKey]}, data);
+    const dataModel = Object.assign({ parent: parent, selected: false, visible: lvl === 0, lvl: lvl, key: data.key, nodes: data[nodesKey]}, data);
     if (!dataModel.nodes) return dataModel;
-    dataModel.nodes = dataModel.nodes.map((node) => buildViewModel(node, lvl + 1, nodesKey));
+    dataModel.nodes = dataModel.nodes.map((node) => buildViewModel(node, lvl + 1, nodesKey, dataModel));
     return dataModel;
   }
 
@@ -47,6 +48,14 @@ function App({data, nodesKey}) {
     updateDataModel(Object.assign({}, dataModel));
   }
 
+  function onNodeCheckBoxClick(node, e) {
+    e.stopPropagation();
+    node.selected = !node.selected;
+    updatePropInSubtree(node, "selected", node.selected, -1);
+    if (node.parent) updateParents(node.parent, "selected", (node) => node.nodes.every((node) => node.selected));
+    updateDataModel(Object.assign({}, dataModel));
+  }
+
   /**
    * Traverses nodes in subtree "node" and updates value under name with checking depth in the subtree
    * @param {Object} node - subtree to traverse
@@ -64,8 +73,10 @@ function App({data, nodesKey}) {
     }); 
   }
 
+  function updateParents(parentToStart, propName, propValueCall) {
+    parentToStart[propName] = propValueCall(parentToStart);
+    if (parentToStart.parent) updateParents(parentToStart.parent, propName, propValueCall);
+  }
 }
-
-
 
 export default App;
