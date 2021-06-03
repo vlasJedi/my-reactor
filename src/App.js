@@ -44,8 +44,7 @@ function App({data, nodesKey}) {
         updatePropInSubtree(node, "visible", true, 0);
       }
     }
-    // !!!! React ignores changes if ref to object does not change
-    updateDataModel(Object.assign({}, dataModel));
+    updateDataToCallRender();
   }
 
   function onNodeCheckBoxClick(node, e) {
@@ -53,7 +52,7 @@ function App({data, nodesKey}) {
     node.selected = !node.selected;
     updatePropInSubtree(node, "selected", node.selected, -1);
     if (node.parent) updateParents(node.parent, "selected", (node) => node.nodes.every((node) => node.selected));
-    updateDataModel(Object.assign({}, dataModel));
+    updateDataToCallRender();
   }
 
   /**
@@ -76,6 +75,13 @@ function App({data, nodesKey}) {
   function updateParents(parentToStart, propName, propValueCall) {
     parentToStart[propName] = propValueCall(parentToStart);
     if (parentToStart.parent) updateParents(parentToStart.parent, propName, propValueCall);
+  }
+
+  function updateDataToCallRender() {
+    const dataModelClone = Object.assign({}, dataModel);
+    // update first children with new parent ref
+    if (dataModelClone.nodes) dataModelClone.nodes.forEach((node) => node.parent = dataModelClone); 
+    updateDataModel(dataModelClone);
   }
 }
 
